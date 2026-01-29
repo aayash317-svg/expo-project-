@@ -1,0 +1,104 @@
+'use client';
+
+import Link from "next/link";
+import { ArrowLeft, Stethoscope, Loader2 } from "lucide-react";
+import { signUpHospital } from "@/app/actions/auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function HospitalSignUp() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        const formData = new FormData(event.currentTarget);
+        const result = await signUpHospital(formData);
+
+        if (result.error) {
+            setError(result.error);
+            setLoading(false);
+        } else {
+            router.push('/login/hospital?registered=true');
+        }
+    }
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 py-8">
+            <div className="w-full max-w-xl bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+                <div className="p-8 space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                            <ArrowLeft className="h-5 w-5" />
+                        </Link>
+                        <span className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Back to Home</span>
+                    </div>
+
+                    <div className="space-y-2 text-center">
+                        <div className="h-12 w-12 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <Stethoscope className="h-6 w-6" />
+                        </div>
+                        <h1 className="text-3xl font-bold tracking-tight">Hospital Registration</h1>
+                        <p className="text-muted-foreground">Join the secure medical network</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {error && (
+                            <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-100 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none" htmlFor="hospitalName">Hospital / Clinic Name</label>
+                            <input required name="hospitalName" type="text" placeholder="City General Hospital" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none" htmlFor="email">Official Email</label>
+                            <input required name="email" type="email" placeholder="admin@cityhospital.com" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none" htmlFor="licenseNumber">Medical License ID</label>
+                                <input required name="licenseNumber" type="text" placeholder="LIC-123456" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none" htmlFor="password">Set Password</label>
+                                <input required name="password" type="password" minLength={6} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none" htmlFor="address">Registered Address</label>
+                            <textarea required name="address" rows={2} className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-none" />
+                        </div>
+
+                        <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-lg text-xs text-emerald-800">
+                            <strong>Note:</strong> Your account will require verification by the Medical Council before full access is granted.
+                        </div>
+
+                        <button disabled={loading} className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium transition-colors mt-4 flex items-center justify-center gap-2">
+                            {loading ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" /> Registering...
+                                </>
+                            ) : (
+                                "Register Hospital"
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="text-center text-sm">
+                        Already registered? <Link href="/login/hospital" className="text-emerald-600 hover:underline">Provider Login</Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
