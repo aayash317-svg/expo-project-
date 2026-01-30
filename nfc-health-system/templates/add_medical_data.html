@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="card">
+        <h2>Add Medical Data</h2>
+        <div class="alert"
+            style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 4px; margin-bottom: 20px;">
+            🛑 <strong>WARNING:</strong> Once saved, this record becomes <strong>PERMANENT and READ-ONLY</strong>. You
+            will be logged out automatically after saving.
+        </div>
+
+        <form id="add-data-form" data-patient-id="{{ patient_id }}">
+            <table class="medical-form-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                    <td style="padding: 10px; font-weight: bold; width: 30%; vertical-align: top;">Record Type</td>
+                    <td style="padding: 10px;">
+                        <select id="record_type" name="record_type" required style="width: 100%; padding: 8px;">
+                            <option value="text">Clinical Notes (Text)</option>
+                            <option value="image">Image / X-Ray</option>
+                            <option value="pdf">PDF Report</option>
+                            <option value="scan">Scan Results</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; font-weight: bold; vertical-align: top;">Summary / Title</td>
+                    <td style="padding: 10px;">
+                        <input type="text" id="summary" name="summary"
+                            placeholder="e.g. Annual physical checkup results" required
+                            style="width: 100%; padding: 8px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; font-weight: bold; vertical-align: top;">Data Content</td>
+                    <td style="padding: 10px;">
+                        <textarea id="data_payload" name="data_payload" rows="5"
+                            placeholder="Enter findings, text data, or file URL here..." required
+                            style="width: 100%; padding: 8px;"></textarea>
+                        <small style="color: #666; display: block; margin-top: 5px;">Supports text, image URLs, or PDF
+                            links.</small>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <button type="submit" class="btn-primary" style="background-color: #dc2626;">Save Permanent
+                    Record</button>
+                <a href="javascript:history.back()" class="btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

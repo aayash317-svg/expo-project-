@@ -28,7 +28,8 @@ export default async function PatientDashboard() {
 
     if (patientError && patientError.code !== 'PGRST116') {
         // Only log actual errors, ignore "no rows found" (PGRST116) which is normal for new profiles
-        console.error("Patient load error:", patientError.message);
+        // eslint-disable-next-line no-console
+        console.error("Patient load error:", patientError?.message || "Unknown error");
     }
 
     const profile = patient?.profiles;

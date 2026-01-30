@@ -58,6 +58,7 @@ export async function updateSession(request: NextRequest) {
 
         if (profile) {
             const role = profile.role;
+            console.log(`[Middleware] User: ${user.id}, Role: ${role}, Path: ${request.nextUrl.pathname}`);
             const path = request.nextUrl.pathname;
 
             // Role Conflict Redirects
@@ -77,7 +78,8 @@ export async function updateSession(request: NextRequest) {
                 if (role === 'insurance') return NextResponse.redirect(new URL("/insurance", request.url));
             }
 
-            // Verification Gates
+            // Verification Gates (DISABLED FOR EXPO DEMO)
+            /* 
             if (role === 'hospital' && path.startsWith("/hospital")) {
                 const { data: hospital } = await supabase
                     .from('hospitals')
@@ -88,7 +90,8 @@ export async function updateSession(request: NextRequest) {
                 if (hospital && !hospital.verified && path !== '/hospital/verification-pending') {
                     return NextResponse.redirect(new URL("/hospital/verification-pending", request.url));
                 }
-            }
+            } 
+            */
 
             if (role === 'insurance' && path.startsWith("/insurance")) {
                 const { data: provider } = await supabase

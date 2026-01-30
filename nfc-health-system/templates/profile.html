@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="card">
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('dashboard') }}" style="text-decoration: none; color: #64748b; font-size: 0.9rem;">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+        <h2>Hospital Profile</h2>
+        <div style="margin-top: 20px;">
+            <p><strong>Hospital Name:</strong> {{ session.get('user_name') }}</p>
+            <p><strong>Council Registration ID:</strong> {{ session.get('council_id') }}</p>
+            <p><strong>Email:</strong> (Hidden for security)</p>
+            <p><strong>Account Status:</strong> <span style="color: green; font-weight: bold;">Active</span></p>
+        </div>
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('dashboard') }}" class="btn-primary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <div class="card">
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('dashboard') }}" style="text-decoration: none; color: #64748b; font-size: 0.9rem;">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+        <h2 style="text-align: center;">Patient Access</h2>
+        <p style="text-align: center; color: #64748b; margin-bottom: 20px;">Scan QR Code or Tap NFC Card</p>
+
+        <!-- QR Camera Area -->
+        <div id="reader" style="width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 20px;"></div>
+        <div id="scan-status" style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #0f172a;"></div>
+
+        <form id="scan-form">
+            <div class="form-group">
+                <label for="scan_data">Manual Input / NFC</label>
+                <input type="text" id="scan_data" name="scan_data" placeholder="Searching camera..." required autofocus>
+                <small style="color: #64748b;">(Camera active. Or type ID like 'PPT123')</small>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Access Patient Records</button>
+        </form>
+    </div>
+</div>
+
+<!-- HTML5-QRCode Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scanStatus = document.getElementById('scan-status');
+        const inputField = document.getElementById('scan_data');
+        const form = document.getElementById('scan-form');
+        let isScanning = true;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (!isScanning) return; // Prevent double submit
+
+            // console.log(`Code matched = ${decodedText}`, decodedResult);
+            scanStatus.innerText = "✅ QR Detected!";
+            scanStatus.style.color = "green";
+
+            // Populate and Submit
+            inputField.value = decodedText;
+            isScanning = false;
+
+            // Show feedback
+            // alert("QR Found: " + decodedText);
+
+            // Submit form logic is handled by main.js listener which calls API
+            // We trigger the submit event manually?
+            // Or just call the API direct? 
+            // Let's trigger the submit button click to reuse main.js logic
+            form.querySelector('button[type="submit"]').click();
+
+            // Stop scanning
+            html5QrcodeScanner.clear();
+        }
+
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning.
+            // console.warn(`Code scan error = ${error}`);
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+        scanStatus.innerText = "🎥 Camera Active - Point at QR Code";
+    });
+</script>
+{% endblock %}

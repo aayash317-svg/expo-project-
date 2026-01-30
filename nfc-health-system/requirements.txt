@@ -1,0 +1,6 @@
+flask
+pyjwt
+werkzeug
+python-dotenv
+requests
+supabase

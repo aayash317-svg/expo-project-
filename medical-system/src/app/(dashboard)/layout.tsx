@@ -5,14 +5,56 @@ import {
     LogOut,
     Settings,
     Shield,
-    User
+    User,
+    Search,
+    FileText
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Default to patient links if unknown, but normally middleware protects this
+    let role = 'patient';
+    let sidebarLinks = [];
+
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+        if (profile) role = profile.role;
+    }
+
+    // Dynamic Links Configuration
+    if (role === 'hospital') {
+        sidebarLinks = [
+            { href: "/hospital", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+            { href: "http://127.0.0.1:5000", label: "Scan NFC & QR Code", icon: <Search className="h-5 w-5" />, external: true },
+            { href: "/hospital/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+        ];
+    } else if (role === 'insurance') {
+        sidebarLinks = [
+            { href: "/insurance", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+            { href: "/insurance/claims", label: "Claims", icon: <FileText className="h-5 w-5" /> },
+        ];
+    } else {
+        // Patient (Default)
+        sidebarLinks = [
+            { href: "/patient", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+            { href: "/patient/records", label: "Medical History", icon: <History className="h-5 w-5" /> },
+            { href: "/patient/profile", label: "Patient Profile", icon: <User className="h-5 w-5" /> },
+            { href: "/patient/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+        ];
+    }
+
     return (
         <div className="min-h-screen bg-muted/20 flex">
             {/* Sidebar */}
@@ -26,24 +68,7 @@ export default function DashboardLayout({
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-1">
-                    <Link href="/patient" className="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg font-medium">
-                        <LayoutDashboard className="h-5 w-5" />
-                        Dashboard
-                    </Link>
-                    <Link href="/patient/records" className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg font-medium transition-colors">
-                        <History className="h-5 w-5" />
-                        Medical History
-                    </Link>
-                    <Link href="/patient/profile" className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg font-medium transition-colors">
-                        <User className="h-5 w-5" />
-                        Patient Profile
-                    </Link>
-                    <Link href="/patient/settings" className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg font-medium transition-colors">
-                        <Settings className="h-5 w-5" />
-                        Settings
-                    </Link>
-                </nav>
+                <SidebarNav links={sidebarLinks} />
 
                 <div className="p-4 border-t border-border/50">
                     <Link href="/" className="flex items-center gap-3 px-4 py-3 text-destructive hover:bg-destructive/10 rounded-lg font-medium transition-colors">
@@ -56,10 +81,10 @@ export default function DashboardLayout({
             {/* Main Content */}
             <main className="flex-1 flex flex-col">
                 <header className="h-16 bg-card border-b border-border/50 flex items-center justify-between px-6 sticky top-0 z-10 backdrop-blur-sm bg-card/80">
-                    <h2 className="font-semibold text-lg">Overview</h2>
+                    <h2 className="font-semibold text-lg capitalize">{role} Portal</h2>
                     <div className="flex items-center gap-4">
-                        <div className="h-8 w-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                            JD
+                        <div className="h-8 w-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase">
+                            {role.slice(0, 2)}
                         </div>
                     </div>
                 </header>

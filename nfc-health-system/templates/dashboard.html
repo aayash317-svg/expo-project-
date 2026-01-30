@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center; margin-bottom: 30px;">Welcome, {{ session.get('user_name', 'Hospital') }}</h2>
+
+    <div class="dashboard-grid">
+        <!-- Block 1: Hospital Profile -->
+        <a href="{{ url_for('hospital_profile') }}" class="dashboard-action-card">
+            <div class="action-icon">🏥</div>
+            <div class="action-title">Hospital Profile</div>
+            <p>View account details and status</p>
+        </a>
+
+        <!-- Block 2: Patient Access -->
+        <a href="{{ url_for('patient_access') }}" class="dashboard-action-card">
+            <div class="action-icon">👤</div>
+            <div class="action-title">Patient Access</div>
+            <p>Scan QR or Tap NFC to access records</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

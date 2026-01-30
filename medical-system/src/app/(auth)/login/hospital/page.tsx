@@ -1,7 +1,58 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowLeft, Stethoscope } from "lucide-react";
+import { ArrowLeft, Stethoscope, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function HospitalLogin() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const router = useRouter();
+    const supabase = createClient();
+
+    async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+
+        const formData = new FormData(e.currentTarget);
+        const councilId = formData.get("hospital-id") as string;
+        const password = formData.get("password") as string;
+
+        if (!councilId || !password) {
+            setError("Please fill in all fields");
+            setIsLoading(false);
+            return;
+        }
+
+        // Logic: Convert Council ID to System Email (Same as Flask)
+        const systemEmail = `${councilId.trim().toLowerCase().replace(" ", "")}@nfc-health.system`;
+
+        try {
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email: systemEmail,
+                password: password,
+            });
+
+            if (authError) {
+                if (authError.message.includes("Invalid login")) {
+                    setError("Invalid Council ID or Password");
+                } else {
+                    setError(authError.message);
+                }
+            } else {
+                router.push("/hospital");
+                router.refresh();
+            }
+        } catch (err) {
+            setError("An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
             <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
@@ -21,11 +72,12 @@ export default function HospitalLogin() {
                         <p className="text-muted-foreground">Authorized medical personnel access</p>
                     </div>
 
-                    <form className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none" htmlFor="hospital-id">Hospital ID / Council ID</label>
                             <input
                                 id="hospital-id"
+                                name="hospital-id"
                                 type="text"
                                 placeholder="HOSP-XXXXX"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -35,13 +87,23 @@ export default function HospitalLogin() {
                             <label className="text-sm font-medium leading-none" htmlFor="password">Password</label>
                             <input
                                 id="password"
+                                name="password"
                                 type="password"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                         </div>
 
-                        <button className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium transition-colors">
-                            Login as Provider
+                        {error && (
+                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded border border-red-200">
+                                {error}
+                            </div>
+                        )}
+
+                        <button
+                            disabled={isLoading}
+                            className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Login as Provider"}
                         </button>
                     </form>
 

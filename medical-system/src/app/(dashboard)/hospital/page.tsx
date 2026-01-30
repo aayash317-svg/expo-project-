@@ -29,6 +29,20 @@ export default function HospitalDashboard() {
                     <h1 className="text-3xl font-bold tracking-tight">Hospital Dashboard</h1>
                     <p className="text-muted-foreground">Manage patient records and hospital operations.</p>
                 </div>
+                {/* ACTION: Link to NFC System Flask App */}
+                <div className="flex gap-4">
+                    <a
+                        href="http://127.0.0.1:5000"
+                        target="_blank"
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-all"
+                    >
+                        <Search className="h-4 w-4" />
+                        Launch NFC Scanner
+                    </a>
+                    <button className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/80 transition-colors">
+                        About Hospital
+                    </button>
+                </div>
             </div>
 
             {/* Patient Search Section */}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 400px; margin: 50px auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 20px;">Hospital Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="council_id">Medical Council ID</label>
+                <input type="text" id="council_id" name="council_id" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+        </form>
+        <div class="footer-login">
+            <a href="{{ url_for('register') }}">Register new Hospital</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

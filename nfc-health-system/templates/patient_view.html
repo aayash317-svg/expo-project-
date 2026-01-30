@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const patientId = "{{ patient.id }}";
+        const recordsContainer = document.getElementById('records-container');
+
+        // Fetch records
+        try {
+            const response = await fetch(`/api/patient/${patientId}/records`);
+            const records = await response.json();
+
+            if (records.length === 0) {
+                recordsContainer.innerHTML = '<p style="text-align:center; padding: 20px;">No medical records found.</p>';
+            } else {
+                records.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(record.created_at).toLocaleString()}</td>
+                        <td>${record.hospital_name}</td>
+                        <td>
+                            <span class="tag tag-${record.record_type}">${record.record_type.toUpperCase()}</span>
+                        </td>
+                        <td>
+                            <strong>${record.summary}</strong><br>
+                            <small>${record.data_payload}</small>
+                        </td>
+                    `;
+                    recordsContainer.appendChild(row);
+                });
+            }
+        } catch (e) {
+            recordsContainer.innerHTML = '<p style="color:red;">Error loading records.</p>';
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Medical History: {{ patient.full_name }} <span
+                style="font-size: 0.6em; background: #e2e8f0; padding: 4px 8px; border-radius: 4px; color: #475569; vertical-align: middle;">Hospital
+                Read-Only View</span></h2>
+        <a href="{{ url_for('add_medical_data', patient_id=patient.id) }}" class="btn-primary">➕ Add Medical Data</a>
+    </div>
+
+    <div class="alert"
+        style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem;">
+        ⚠️ <strong>Read-Only Access:</strong> Historical records cannot be modified or deleted.
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Date & Time</th>
+                    <th style="width: 20%;">Added By</th>
+                    <th style="width: 10%;">Type</th>
+                    <th style="width: 50%;">Details / Summary</th>
+                </tr>
+            </thead>
+            <tbody id="records-container">
+                <!-- Records loaded via JS -->
+                <tr>
+                    <td colspan="4" style="text-align: center;">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('dashboard') }}" class="btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
